@@ -118,53 +118,130 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 
   return newRequire;
 })({"main.js":[function(require,module,exports) {
-var state = {
-  start: 1,
-  divideBy: 4,
-  clicked: 1,
-  height: window.screen.height,
-  width: window.screen.width
-};
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function getRandomColor() {
-  var letters = '0123456789ABCDEF';
-  var color = '#';
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-  for (var i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var App = /*#__PURE__*/function () {
+  function App(window) {
+    _classCallCheck(this, App);
+
+    var _window$screen = window.screen,
+        height = _window$screen.height,
+        width = _window$screen.width;
+    this.height = height;
+    this.width = width;
+    this.split = 4;
+    this.clicked = 0;
+    this.crazy = false;
+    this.interval = null;
+    this.goldenNumber = 2.5;
   }
 
-  return color;
-}
+  _createClass(App, [{
+    key: "clickSquare",
+    value: function clickSquare(e) {
+      this.clicked += 1;
+      var id = e.target.id;
+      document.getElementById(id).outerHTML = '';
+      this.createSquares(this.split);
+    }
+  }, {
+    key: "createSquares",
+    value: function createSquares(number) {
+      for (var i = 0; i <= number; i += 1) {
+        var randomSize = this.constructor.getRandomInt(this.height / this.goldenNumber);
+        var randomX = this.constructor.getRandomInt(this.width / this.goldenNumber);
+        var randomY = this.constructor.getRandomInt(this.height / this.goldenNumber);
+        var isViewableHeight = this.height < randomSize + randomY;
+        var isViewableWidth = this.width < randomSize + randomX;
+        var isViewable = isViewableHeight || isViewableWidth;
 
-function getRandomInt(max) {
-  return Math.floor(Math.random() * Math.floor(max));
-}
+        if (isViewable) {
+          this.createSquares(number);
+        } else {
+          var square = document.createElement('div');
+          square.id = "".concat(this.clicked, "-").concat(i);
+          document.getElementById('app').appendChild(square);
+          square.className = 'square';
+          square.style.background = this.constructor.getRandomColor();
+          square.style.position = 'absolute';
+          square.style.height = "".concat(randomSize, "px");
+          square.style.width = "".concat(randomSize, "px");
+          square.style[this.constructor.position('x')] = "".concat(randomX, "px");
+          square.style[this.constructor.position('y')] = "".concat(randomY, "px");
+          square.onclick = this.clickSquare.bind(this);
+        }
+      }
+    }
+  }, {
+    key: "setCrazyMode",
+    value: function setCrazyMode() {
+      this.crazy = !this.crazy;
+      this.moveSquares();
+    }
+  }, {
+    key: "moveSquares",
+    value: function moveSquares() {
+      var _this = this;
 
-function createSquares(number) {
-  for (var i = 0; i < number; i++) {
-    var square = document.createElement('div');
-    square.id = "".concat(state.clicked, "-").concat(i);
-    document.getElementById('app').appendChild(square);
-    square.style.background = getRandomColor();
-    square.style.border = '1px solid black';
-    square.style.position = 'absolute';
-    square.style.height = "".concat(getRandomInt(state.height / (number * state.clicked)), "px");
-    square.style.width = "".concat(getRandomInt(state.width / (number * state.clicked)), "px");
-    square.style.left = "".concat(getRandomInt(state.width), "px");
-    square.style.top = "".concat(getRandomInt(state.height), "px");
-    square.onclick = clickSquare;
-  }
-}
+      if (this.crazy) {
+        var squares = document.getElementsByClassName('square');
+        this.interval = setInterval(function () {
+          for (var i = 0; i < squares.length; i += 1) {
+            var square = squares[i];
+            square.style[_this.constructor.position('y')] = "".concat(_this.constructor.getRandomInt(_this.width / _this.goldenNumber), "px");
+            square.style[_this.constructor.position('x')] = "".concat(_this.constructor.getRandomInt(_this.width / _this.goldenNumber), "px");
+          }
+        }, 2000);
+      } else {
+        clearInterval(this.interval);
+      }
+    }
+  }, {
+    key: "init",
+    value: function init() {
+      var app = document.createElement('div');
+      app.id = 'app';
+      app.className = 'container';
+      document.body.appendChild(app);
+      document.ondblclick = this.setCrazyMode.bind(this);
+      this.createSquares(this.clicked);
+    }
+  }], [{
+    key: "position",
+    value: function position(axis) {
+      if (axis === 'x') {
+        return Math.random() > 0.5 ? 'left' : 'right';
+      }
 
-function clickSquare(e) {
-  state.clicked += 1;
-  var id = e.target.id;
-  document.getElementById(id).outerHTML = '';
-  createSquares(state.divideBy);
-}
+      return Math.random() > 0.5 ? 'top' : 'bottom';
+    }
+  }, {
+    key: "getRandomColor",
+    value: function getRandomColor() {
+      var letters = '0123456789ABCDEF';
+      var color = '#';
 
-createSquares(state.start);
+      for (var i = 0; i < 6; i += 1) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+
+      return color;
+    }
+  }, {
+    key: "getRandomInt",
+    value: function getRandomInt(max) {
+      return Math.floor(Math.random() * Math.floor(max));
+    }
+  }]);
+
+  return App;
+}();
+
+new App(window).init();
 },{}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -193,7 +270,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "46467" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "44963" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
